@@ -1,0 +1,69 @@
+---
+title: "Extracting COVID Data for Tableau"
+author: "Jay Bhushan"
+output: html_notebook
+---
+
+Get the data from https://ourworldindata.org/covid-deaths.
+
+1. Import data and have a look.
+
+
+```{r}
+
+data <- read.csv("owid-covid-data.csv", header=TRUE)
+
+str(data)
+
+```
+2. I want to start with Total Cases, Total Deaths and Death Percent across all countries.
+
+```{r}
+
+
+total_cases <- sum(data$new_cases, na.rm=TRUE)
+total_deaths <- sum(data$new_deaths, na.rm=TRUE)
+
+death_percent <- (total_deaths/total_cases)*100
+
+
+df1 <- data.frame(total_cases, total_deaths, death_percent)
+```
+
+3. Now I want to look at total deaths per region, specifically - Europe, North America, South America, Asia, Africa and Oceania. 
+
+```{r}
+unique(data$continent)
+
+
+Asia <- sum(data[data$continent=="Asia", ]$new_cases, na.rm = TRUE)
+Europe <- sum(data[data$continent=="Europe", ]$new_cases, na.rm = TRUE)
+Africa <- sum(data[data$continent=="Africa", ]$new_cases, na.rm = TRUE)
+North_America <- sum(data[data$continent=="North America", ]$new_cases, na.rm = TRUE)
+South_America <- sum(data[data$continent=="South America", ]$new_cases, na.rm = TRUE)
+Oceania <- sum(data[data$continent=="Oceania", ]$new_cases, na.rm = TRUE)
+
+df2 <- data.frame(Asia, Europe, Africa, North_America, South_America)
+df2.names <- c("Asia", "Europe", "Africa", "North America", "South America")
+
+```
+
+4. Now let's look country specific. I'll go for Country, Population, Highest Number of Cases, Maximum Percent of Population Infected 
+
+```{r}
+
+
+
+df3 <- aggregate(new_cases ~ location + population, data, sum)
+
+
+```
+
+
+
+Export data for use in Tableau 
+```{r}
+write.csv(df1, file="Tableau Table 1.csv", row.names=FALSE)
+write.csv(df2, file="Tableau Table 2.csv", row.names=FALSE)
+```
+
